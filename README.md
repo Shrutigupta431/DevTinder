@@ -63,3 +63,40 @@ app.get("/user/:userId/:name",(req,res)=>{
 app.listen(3000,()=>{
     console.log("Server is running on port 3000");  
 });
+
+Middleware is one of the MOST important concepts in Express.js.
+
+Simple definition:
+
+Middleware is a function that runs between receiving the request and sending the response.
+
+Real-Life Analogy
+
+Suppose you enter a mall.
+
+Before entering:
+
+Security checks bag
+Reception checks ID
+Staff guides you
+
+Only then you enter.
+
+These checkpoints are like middleware.
+const express = require("express");
+
+const app = express();
+
+const middleware = (req, res, next) => {
+    console.log("Middleware executed");
+
+    next();
+};
+
+app.use(middleware);
+
+app.get("/", (req, res) => {
+    res.send("Home Page");
+});
+
+app.listen(3000);

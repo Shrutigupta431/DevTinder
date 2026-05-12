@@ -1,26 +1,25 @@
 const express = require("express");
 const app = express();
-const {adminAuth,userAuth} = require("./middlewares/auth")
-//handle auth middleware for all GET,POST,PUT,DELETE request to /admin
-app.use("/admin", adminAuth);
-app.use("/user/userData",userAuth,
+
+//Error handling in express js 
+app.get("/user",
    (req, res) => {
+    try{
+throw new Error("User Authentication FAiled");
         res.send("Get All User Data");//route handler 
+    }catch(err){
+res.status(500).send("Something Went Wrong contact with support team")
+    }
+    
     },
    
 );
-app.get("/admin/getAllData",//route
-   (req, res) => {
-        res.send("Get All Data");//route handler 
-    },
-   
-);
-app.get("/admin/deleteAllData",//route
-   (req, res) => {
-        res.send("Deleted All Data");//route handler 
-    },
-   
-);
+app.use("/",(err,reqq,res,next)=>{
+    if(err){
+        res.status(500).send("Something Went Wrong" )
+    }
+})
+
 
 app.listen(3000, () => {
     console.log("Server is running on port 3000");

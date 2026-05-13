@@ -3,16 +3,13 @@ const ConnectDB = require("./config/database");
 const app = express();
 const User = require("./models/user");
 
+
+app.use(express.json());//it'll work for every request coming to the server;
+
 app.post("/signup", async (req, res) => {
     //Creating the new instance of the user model and saving it to the database
-    const user = new User({
-        firstName: "AKshay",
-        lastName: "Kumar",
-        emailId: "hello@gmail.com",
-        password: "123456",
-        // age: 30,
-        // gender: "Male"
-    })
+    const user = new User(req.body);
+    console.log("User data received:", req.body); // Log the received user data
     try{
 
         res.send("User Added Successfully !");

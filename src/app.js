@@ -1,26 +1,34 @@
 const express = require("express");
+const ConnectDB = require("./config/database");
 const app = express();
+const User = require("./models/user");
 
-//Error handling in express js 
-app.get("/user",
-   (req, res) => {
+app.post("/signup", async (req, res) => {
+    //Creating the new instance of the user model and saving it to the database
+    const user = new User({
+        firstName: "AKshay",
+        lastName: "Kumar",
+        emailId: "hello@gmail.com",
+        password: "123456",
+        // age: 30,
+        // gender: "Male"
+    })
     try{
-throw new Error("User Authentication FAiled");
-        res.send("Get All User Data");//route handler 
+
+        res.send("User Added Successfully !");
+        await user.save();
     }catch(err){
-res.status(500).send("Something Went Wrong contact with support team")
-    }
-    
-    },
-   
-);
-app.use("/",(err,reqq,res,next)=>{
-    if(err){
-        res.status(500).send("Something Went Wrong" )
+        res.status(400).send("Error while adding the user : " + err.message);
     }
 })
+// Connect to the database
+ConnectDB().then(() => {
+    console.log("Connected to the database successfully");
 
+    app.listen(7777, () => {
+        console.log("Server is running on port 3000");
+    });
+}).catch((error) => {
+    console.error("Error connecting to the database:", error);
+})
 
-app.listen(3000, () => {
-    console.log("Server is running on port 3000");
-});

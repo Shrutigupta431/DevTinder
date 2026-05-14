@@ -4,8 +4,10 @@ const app = express();
 const User = require("./models/user");
 const validateHandler = require("./utils/validate");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 app.use(express.json());//it'll work for every request coming to the server;
-
+app.use(cookieParser())
 //signup API to create a new user
 app.post("/signup", async (req, res) => {
     try {
@@ -38,6 +40,10 @@ app.post("/login", async (req, res) => {
         }
         const isValidPassword = await bcrypt.compare(password,user.password);
          if(isValidPassword){
+            //create the JWT token 
+            const token = await jwt.sign({_id:user._id}, "SHruu@431")
+            //send the cookie 
+            res.cookie("token",token)
             res.send("User Login SuccessFully !");
          }else{
             throw new Error("Invalid credentials !!");
@@ -47,6 +53,20 @@ app.post("/login", async (req, res) => {
         res.status(400).send("Error while logging in the user : " + err.message);
     }
 });
+//profile
+app.get("/profile",async(req,res)=>{
+    const cookies = req.cookies;
+
+    const {token} = cookies;
+    const decodedMessage = await jwt.verify(token,"SHruu@431");
+    console.log("decodedMessage:", decodedMessage);  
+    
+    const {_id}=decodedMessage;
+
+    const loggedUser = await User.findById(_id);
+    console.log("Logged in user is " +loggedUser.firstName)
+    res.send("This is the profile page");
+})
 //get user by email id
 app.get("/user", async (req, res) => {
     const userEmail = req.body.emailId;

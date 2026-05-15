@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const jwt = require("jsonwebtoken");
 const userSchema = new mongoose.Schema({
     firstName: { type: String, required: true, minLength: 2, maxLength: 100 },
     lastName: { type: String },
@@ -29,7 +30,17 @@ const userSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-
+userSchema.methods.getJWT = async function(){
+   const user = this;
+    const token = await  jwt.sign({_id:user._id}, "SHruu@431",{expiresIn:"7d"});
+    return token;
+};
+userSchema.methods.validatePassword = async function(passwordByUser){
+   const user = this;
+   const passHash = user.password;
+    const isValidPass = await  bcrypt.compare(passwordByUser,passHash);
+    return isValidPass;
+}
 //mongoose model name should start with capital letter and should be singular
 // const UserModel = mongoose.model("User", userSchema);
 

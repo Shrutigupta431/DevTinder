@@ -39,10 +39,10 @@ app.post("/login", async (req, res) => {
         if(!user){
             throw new Error("Invalid credentials !!")
         }
-        const isValidPassword = await bcrypt.compare(password,user.password);
+        const isValidPassword = await user.validatePassword(password);
          if(isValidPassword){
             //create the JWT token 
-            const token = await jwt.sign({_id:user._id}, "SHruu@431",{expiresIn:"7d"});
+            const token = await user.getJWT();
             if(!token){
                 throw new Error("Token Expired");
             }

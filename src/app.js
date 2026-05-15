@@ -6,6 +6,7 @@ const validateHandler = require("./utils/validate");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const { userAuth } = require("./middlewares/auth");
 app.use(express.json());//it'll work for every request coming to the server;
 app.use(cookieParser())
 //signup API to create a new user
@@ -41,9 +42,12 @@ app.post("/login", async (req, res) => {
         const isValidPassword = await bcrypt.compare(password,user.password);
          if(isValidPassword){
             //create the JWT token 
-            const token = await jwt.sign({_id:user._id}, "SHruu@431")
+            const token = await jwt.sign({_id:user._id}, "SHruu@431",{expiresIn:"7d"});
+            if(!token){
+                throw new Error("Token Expired");
+            }
             //send the cookie 
-            res.cookie("token",token)
+            res.cookie("token",token,{expires:new Date(Date.now()+7*24*60*60*1000), httpOnly:true});
             res.send("User Login SuccessFully !");
          }else{
             throw new Error("Invalid credentials !!");
@@ -54,18 +58,14 @@ app.post("/login", async (req, res) => {
     }
 });
 //profile
-app.get("/profile",async(req,res)=>{
-    const cookies = req.cookies;
+app.get("/profile",userAuth, async(req,res)=>{
+    try{
 
-    const {token} = cookies;
-    const decodedMessage = await jwt.verify(token,"SHruu@431");
-    console.log("decodedMessage:", decodedMessage);  
-    
-    const {_id}=decodedMessage;
-
-    const loggedUser = await User.findById(_id);
-    console.log("Logged in user is " +loggedUser.firstName)
-    res.send("This is the profile page");
+        const user = req.user;
+        res.send(user);
+    }catch(err){
+        res.status(400).send("Error while fetching user profile : " + err.message);
+    }
 })
 //get user by email id
 app.get("/user", async (req, res) => {

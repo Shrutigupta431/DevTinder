@@ -28,6 +28,8 @@ const userSchema = new mongoose.Schema({
     about: { type: String, default: " Hey there! I'm using DevConnect." },
 
 }, { timestamps: true });
+
+
 //mongoose model name should start with capital letter and should be singular
 // const UserModel = mongoose.model("User", userSchema);
 

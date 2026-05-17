@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const userSchema = new mongoose.Schema({
     firstName: { type: String, required: true, minLength: 2, maxLength: 100 },
     lastName: { type: String },
-    emailId: { type: String, required: true, unique: true, lowercase: true, trim: true,
+    emailId: { type: String, required: true, unique: true,index:true, lowercase: true, trim: true,
         validate(value){
             if(!validator.isEmail(value)){
                 throw new Error("Invalid email address");
@@ -30,7 +30,8 @@ const userSchema = new mongoose.Schema({
     about: { type: String, default: " Hey there! I'm using DevConnect." },
 
 }, { timestamps: true });
-
+// userSchema.index({firstName:1});
+// userSchema.index({gender:1});
 userSchema.methods.getJWT = async function(){
    const user = this;
     const token = await  jwt.sign({_id:user._id}, "SHruu@431",{expiresIn:"7d"});

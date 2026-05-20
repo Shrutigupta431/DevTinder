@@ -33,7 +33,7 @@ authRouter.post("/login", async (req, res) => {
         const { emailId, password } = req.body;
         const user = await User.findOne({ emailId });
         if (!user) {
-            throw new Error("Invalid credentials !!")
+            throw new Error("Invalid credentials")
         }
         const isValidPassword = await user.validatePassword(password);
         if (isValidPassword) {
@@ -44,9 +44,9 @@ authRouter.post("/login", async (req, res) => {
             }
             //send the cookie 
             res.cookie("token", token, { expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), httpOnly: true });
-            res.send("User Login SuccessFully !");
+            res.send(user);
         } else {
-            throw new Error("Invalid credentials !!");
+            throw new Error("Invalid credentials");
         }
 
     } catch (err) {

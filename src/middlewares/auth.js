@@ -4,10 +4,9 @@ const User = require("../models/user");
 const userAuth = async (req, res, next) => {
     try {
         const cookies = req.cookies;
-
         const { token } = cookies;
         if (!token) {
-            return res.status(401).send("Invalid Token ");
+            return res.status(401).send("Invalid Token, Please Login First !!");
         }
         const decodedMessage = await jwt.verify(token, "SHruu@431");
 

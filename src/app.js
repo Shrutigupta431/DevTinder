@@ -7,7 +7,7 @@ const cookieParser = require("cookie-parser");
 const { userAuth } = require("./middlewares/auth");
 
 require("dotenv").config();
-
+require("./utils/cronjob");
 const cors = require("cors")
 app.use(cors({
     origin :"http://localhost:5173",

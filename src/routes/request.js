@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const User = require("../models/user")
 const { userAuth } = require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
+const sendEmail = require("../utils/sendEmail");
 
 requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res) => {
    try {
@@ -46,6 +47,12 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
          fromUserId, toUserId, status
       })
       const data = await connectionRequest.save();
+      const emailRes = await sendEmail.run(
+         "New Connection Request",
+         `${req.user.firstName} is ${status} in ${toUser.firstName}`
+      );
+
+      console.log(emailRes);
       res.json({
          message: "Connection Send Successfully !!",
          data

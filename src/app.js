@@ -5,6 +5,9 @@ const ConnectDB = require("./config/database");
 const User = require("./models/user");
 const cookieParser = require("cookie-parser");
 const { userAuth } = require("./middlewares/auth");
+
+require("dotenv").config();
+
 const cors = require("cors")
 app.use(cors({
     origin :"http://localhost:5174      ",

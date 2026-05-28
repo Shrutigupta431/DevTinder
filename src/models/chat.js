@@ -10,7 +10,15 @@ const messageSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    
+    // Message delivery/read tracking
+    deliveredAt: {
+        type: Date,
+        default: null,
+    },
+    seenAt: {
+        type: Date,
+        default: null,
+    },
 },
     { timestamps: true }
 

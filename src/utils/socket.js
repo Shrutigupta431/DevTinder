@@ -144,14 +144,20 @@ const initializeSocket =
                             }
 
                             // SAVE MESSAGE
-                            chat.messages.push({
-                                senderId:
-                                    userId,
-
+                            const message = {
+                                senderId: userId,
                                 text,
-                            });
+                                deliveredAt: null,
+                                seenAt: null,
+                            };
+
+                            chat.messages.push(message);
 
                             await chat.save();
+
+                            // Get last pushed message id for delivery/seen updates
+                            const savedMessage =
+                                chat.messages[chat.messages.length - 1];
 
                             // SEND TO ROOM
                             io.to(roomId)
@@ -161,8 +167,15 @@ const initializeSocket =
                                         firstName,
                                         userId,
                                         text,
+                                        messageId:
+                                            savedMessage._id,
+                                        deliveredAt:
+                                            savedMessage.deliveredAt,
+                                        seenAt:
+                                            savedMessage.seenAt,
                                     }
                                 );
+
 
                         } catch (err) {
 
@@ -197,10 +210,90 @@ const initializeSocket =
                     }
                 );
 
+                // ✅ MESSAGE DELIVERED EVENT
+                socket.on(
+                    "messageDelivered",
+                    async ({ userId, targetUserId, messageId }) => {
+                        try {
+                            const roomId =
+                                getSecretRoomIdHash(
+                                    userId,
+                                    targetUserId
+                                );
+
+                            const chat = await Chat.findOne({
+                                participants: { $all: [userId, targetUserId] },
+                                "messages._id": messageId,
+                            });
+
+                            if (!chat) return;
+
+                            const msg = chat.messages.id(messageId);
+                            if (!msg) return;
+
+                            // Mark delivered only once
+                            if (!msg.deliveredAt) {
+                                msg.deliveredAt = new Date();
+                                await chat.save();
+                            }
+
+                            io.to(roomId).emit(
+                                "messageDelivered",
+                                {
+                                    messageId,
+                                    deliveredAt: msg.deliveredAt,
+                                }
+                            );
+                        } catch (err) {
+                            console.log(err);
+                        }
+                    }
+                );
+
+                // ✅ MESSAGE SEEN EVENT
+                socket.on(
+                    "messageSeen",
+                    async ({ userId, targetUserId, messageId }) => {
+                        try {
+                            const roomId =
+                                getSecretRoomIdHash(
+                                    userId,
+                                    targetUserId
+                                );
+
+                            const chat = await Chat.findOne({
+                                participants: { $all: [userId, targetUserId] },
+                                "messages._id": messageId,
+                            });
+
+                            if (!chat) return;
+
+                            const msg = chat.messages.id(messageId);
+                            if (!msg) return;
+
+                            if (!msg.seenAt) {
+                                msg.seenAt = new Date();
+                                await chat.save();
+                            }
+
+                            io.to(roomId).emit(
+                                "messageSeen",
+                                {
+                                    messageId,
+                                    seenAt: msg.seenAt,
+                                }
+                            );
+                        } catch (err) {
+                            console.log(err);
+                        }
+                    }
+                );
+
                 // ✅ DISCONNECT EVENT
                 socket.on(
                     "disconnect",
                     async () => {
+
 
                         console.log(
                             "User disconnected"

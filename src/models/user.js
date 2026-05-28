@@ -32,7 +32,12 @@ const userSchema = new mongoose.Schema({
     },
     skills: { type: [String] },
     about: { type: String, default: " Hey there! I'm using DevConnect." },
-
+       // ✅ ADDED LAST SEEN
+    lastSeen: {
+        type: Date,
+        default: null
+    },
+    
 }, { timestamps: true });
 // userSchema.index({firstName:1});
 // userSchema.index({gender:1});

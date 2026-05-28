@@ -4,7 +4,7 @@ const ConnectDB = require("./config/database");
 const User = require("./models/user");
 const cookieParser = require("cookie-parser");
 const { userAuth } = require("./middlewares/auth");
-const initializeSocket = require("./utils/socket");
+const {initializeSocket} = require("./utils/socket");
 
 const http = require("http");
 
@@ -26,12 +26,13 @@ const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const { userRouter } = require("./routes/user");
 const chatRouter = require("./routes/chat")
-
+const statusRouter =require("./routes/status");
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
-app.use("/", userRouter)
-app.use("/",chatRouter)
+app.use("/", userRouter);
+app.use("/", chatRouter);
+app.use("/", statusRouter);
 //configuration for socket.io
 const server = http.createServer(app);
 initializeSocket(server);

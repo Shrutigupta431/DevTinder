@@ -42,10 +42,21 @@ ConnectDB().then(() => {
     console.log("Connected to the database successfully");
 
     //changed app.listen ==> server.listen for socket configuration
-    server.listen(7777, () => {
-        console.log("Server is running on port 7777");
+    const PORT = process.env.PORT || 7777;
+
+    server.on("error", (err) => {
+        if (err.code === "EADDRINUSE") {
+            console.error(`Port ${PORT} is already in use. Stop other server instances and retry.`);
+            return; // keep nodemon alive without crashing the process
+        }
+        console.error("Server error:", err);
+    });
+
+    server.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
     });
 }).catch((error) => {
     console.error("Error connecting to the database:", error);
 })
+
 
